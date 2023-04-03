@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>신설 위치</title>
+    <style>
+        .chart{padding: 0px; margin: 0px;}
+        .line1{width: 800px; height: 30%; float: left;}
+        .line2{width: 800px; height: 30%; float: left;}
+        .line3{width: 800px; height: 30%; float: left;}
+    </style>
+</head>
+<body>
+
+    <h1>서울시 공공도서관 신설지역추천</h1>
+
+    <div>
+        <span><input type="button" value="HOME" onclick="location.href='{% url 'index' %}'"></span>
+        <span><input type="button" value="정보취약계층" onclick="location.href='{% url 'disadv' %}'"></span>
+    </div>
+
+    <div class="chart">
+        <div class="line1"><h2>공공성</h2></div>
+        <div class="line1"><h2>효율성</h2></div>
+        <div class="line2">
+            {% autoescape off %}
+            {{ income_lib }}
+            {% endautoescape %}
+        </div>
+        <div class="line2">
+            {% autoescape off %}
+            {{ lib_visitor }}
+            {% endautoescape %}
+        </div>
+        <div class="line3">
+            {% autoescape off %}
+            {{ disadv_av_budget_income }}
+            {% endautoescape %}
+        </div>
+    </div>
+
+</body>
+</html>

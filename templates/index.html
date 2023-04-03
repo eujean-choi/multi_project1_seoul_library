@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>6조_공공도서관</title>
+    <style>
+        body{
+            font-size: 20px;
+        }
+        @font-face{
+            font-family: "kopubworld";
+            src: url("../visualization/resources/KoPubWorld Dotum Bold.ttf")
+        }
+        h1{
+            font-family: "kopubworld";
+            margin: 20px 0 0 30px;
+            font-size: 3em;
+            color: #003458
+        }
+        .chart{padding: 0px; margin: 0px;}
+        #buttons{position: fixed; right: 50px; top: 30px;}
+        #buttons input{
+            margin: 10px;
+            font-family: "kopubworld";
+            border: none;
+            background: #003458;
+            color: #f0f8ff;
+            display: inline-block;
+            padding: 10px 30px;
+            border-radius: 15px;
+            transition: 0.25s;
+            font-size: 15px;
+        }
+        #buttons input:hover {
+            letter-spacing: 2px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+        .chart > div{
+            border: 3px solid #003458;
+            display: inline-block;
+            margin: 10px;
+        }
+        #box1{
+            height: 20vh;
+            width: 35vw;
+            text-align: center;
+            font-size: 2.2em;
+        }
+        #box2{
+            height: 35vh;
+            width: 45vw;
+        }
+
+
+
+    </style>
+</head>
+
+<body>
+
+    <h1>서울시 공공도서관</h1>
+
+    <div id="buttons">
+        <span><input type="button" value="신설지역추천" onclick="location.href='{% url 'newloc' %}'"></span>
+        <span><input type="button" value="정보취약계층" onclick="location.href='{% url 'disadv' %}'"></span>
+    </div>
+
+    <div class="chart">
+        <div id="box1">
+            <b>서울시 공공도서관</b>
+            <br>
+            <b>276개</b>
+        </div>
+        <div id="box2">
+            {% autoescape off %}
+            {{ rent_ages }}
+            {% endautoescape %}
+        </div>
+        <br>
+        <div id="box3">
+            {% autoescape off %}
+            {{ intro_map }}
+            {% endautoescape %}
+        </div>
+        <div id="box4">
+            {% autoescape off %}
+            {{ gu_lib_budget }}
+            {% endautoescape %}
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>취약계층</title>
+    <style>
+        .chart{padding: 0px; margin: 0px;}
+        .line1{width: 800px; height: 30%; float: left;}
+        .line2{width: 800px; height: 30%; float: left;}
+    </style>
+</head>
+<body>
+
+    <h1>지식정보취약계층을 위한 공공도서관</h1>
+
+    <div>
+        <span><input type="button" value="HOME" onclick="location.href='{% url 'index' %}'"></span>
+        <span><input type="button" value="신설지역추천" onclick="location.href='{% url 'newloc' %}'"></span>
+    </div>
+
+    <div class="chart">
+        <div class="line1">
+            {% autoescape off %}
+            {{ corr_heatmap }}
+            {% endautoescape %}
+        </div>
+        <div class="line1">
+            {% autoescape off %}
+            {{ disadv_budget_users }}
+            {% endautoescape %}
+        </div>
+        <div class="line2">
+            {% autoescape off %}
+            {{ disadv_av_budget_income }}
+            {% endautoescape %}
+        </div>
+        <div class="line2">
+            {% autoescape off %}
+            {{ disadv_av_budget_income }}
+            {% endautoescape %}
+        </div>
+    </div>
+
+</body>
+</html>
