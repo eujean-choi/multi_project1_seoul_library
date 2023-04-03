@@ -1,4 +1,3 @@
-# 데이터 수집
 # pip install xlrd
 # pip install openpyxl
 import requests
@@ -12,10 +11,9 @@ from selenium.webdriver.common.by import By
 from time import sleep
 from mysql import data_save
 
+
+# 서울시 공공도서관 위치 정보
 def library_location():
-    '''
-    서울시 공공도서관 위치 정보
-    '''
     key = '4976726e4d65756a313131516a417045'
     xml = f'http://openapi.seoul.go.kr:8088/{key}/xml/SeoulPublicLibraryInfo/1/192/'
     resp = requests.get(xml)
@@ -38,18 +36,15 @@ def library_location():
 
     return df
 
+
 def gu_border():
-    '''
-    서울시 자치구별 경계 정보
-    '''
     pass
 
+
+# 서울시 자치구별 공공도서관 통계
 def gu_libraries():
-    '''
-    서울시 자치구별 공공도서관 통계
-    '''
     target_url = 'https://www.libsta.go.kr/statistics/public/main'
-    service = Service('../drivers/chromedriver.exe')
+    service = Service('./drivers/chromedriver.exe')
     driver = webdriver.Chrome(service=service)
     driver.get(target_url)
     sleep(5)
@@ -76,16 +71,14 @@ def gu_libraries():
         new_row = [gu, cnt_2017, cnt_2018, cnt_2019, cnt_2020, cnt_2021]
         df.loc[i] = new_row
     # 정수 변환
-    df[['2017', '2018', '2019', '2020', '2021']] = df[['2017', '2018', '2019', '2020', '2021']].applymap(
-        lambda x: int(x))
+    df[['2017', '2018', '2019', '2020', '2021']] = df[['2017', '2018', '2019', '2020', '2021']].applymap(lambda x: int(x))
     return df
 
+
+# 서울시 자치구별 1관당 자료 통계
 def gu_materials_per():
-    '''
-    서울시 자치구별 1관당 자료 통계
-    '''
     target_url = 'https://www.libsta.go.kr/statistics/public/main'
-    service = Service('../drivers/chromedriver.exe')
+    service = Service('./drivers/chromedriver.exe')
     driver = webdriver.Chrome(service=service)
     driver.get(target_url)
     sleep(5)
@@ -119,15 +112,13 @@ def gu_materials_per():
     df.rename(columns={'index': '자치구'}, inplace=True)
     df[['2017', '2018', '2019', '2020', '2021']] = df[['2017', '2018', '2019', '2020', '2021']].applymap(
         lambda x: float(x.replace(',', '')))
-
     return df
 
+
+# 서울시 자치구별 1관당 인구 통계
 def gu_population_per():
-    '''
-    서울시 자치구별 1관당 인구 통계
-    '''
     target_url = 'https://www.libsta.go.kr/statistics/public/main'
-    service = Service('../drivers/chromedriver.exe')
+    service = Service('./drivers/chromedriver.exe')
     driver = webdriver.Chrome(service=service)
     sleep(3)
     driver.get(target_url)
@@ -165,30 +156,27 @@ def gu_population_per():
     df.rename(columns={'index': '자치구'}, inplace=True)
     df[['2017', '2018', '2019', '2020', '2021']] = df[['2017', '2018', '2019', '2020', '2021']].applymap(
         lambda x: float(x.replace(',', '')))
-
     return df
 
+
+# 서울시 자치구별 공공도서관 예산
 def gu_librarybudget():
-    '''
-    서울시 자치구별 공공도서관 예산
-    '''
-    df = pd.read_excel('rawdata/gu_librarybudget.xlsx')
+    df = pd.read_excel('./raws/gu_librarybudget.xlsx')
     df.drop(['개소', '자료수', '자료수.1', '자료수.2', '도서관 방문자수', '자료실 이용자수', '직원수', '직원수.1', '직원수.2'], axis=1, inplace=True)
     df.drop(0, inplace=True)
-    df.rename(columns={'기간':'연도'}, inplace=True)
+    df.rename(columns={'기간': '연도'}, inplace=True)
     df.reset_index(drop=True, inplace=True)
     df = df[df['자치구'] != '합계']
     df[['좌석수', '연간대출 책수', '예산']] = df[['좌석수', '연간대출 책수', '예산']].applymap(lambda x: int(x))
     return df
 
+
+# 서울시 공공도서관 회원 및 이용자 통계
 def library_users():
-    '''
-    서울시 공공도서관 회원 및 이용자 통계
-    '''
     start = 2017
     end = 2019
 
-    df = pd.DataFrame(columns=['코드', '자치구', '구분', '도서관명', '설립연도', '어린이회원', '청소년회원', '성인회원', '방문자수', '주소', '설립기관', '연도'])
+    df = pd.DataFrame(columns=['코드', '구군', '구분', '도서관명', '설립연도', '어린이회원', '청소년회원', '성인회원', '방문자수', '주소', '설립기관', '연도'])
     for i in range(start, end + 1):
         url = f'https://www.libsta.go.kr/statistics/stat/getlibraryexcelstatinfo?lib_gubun=LIBTYPE000002&stat_gubun=MCST_STBL_0000003710%7CMCST_STBL_0000003738&start_year={i}&end_year={i}&local_code=11'
         resp = requests.get(url)
@@ -211,17 +199,14 @@ def library_users():
         df_temp.columns = ['코드', '자치구', '구분', '도서관명', '설립연도', '어린이회원', '청소년회원', '성인회원', '방문자수', '주소', '설립기관', '연도']
         df = pd.concat([df, df_temp], ignore_index=True)
     df[['어린이회원', '청소년회원', '성인회원', '방문자수']] = df[['어린이회원', '청소년회원', '성인회원', '방문자수']].applymap(lambda x: int(x))
+    df.drop(['구군'], axis=1, inplace=True)
     return df
 
+
+# 서울시 공공도서관 대출자 통계 (전자자료 제외, 인쇄자료만)
 def library_rent():
-    '''
-    서울시 공공도서관 대출자 통계
-    (전자자료 제외, 인쇄자료만)
-    '''
-    # 대출자수(전자자료는 제외)
     start = 2017
     end = 2019
-
     df = pd.DataFrame(columns=['코드', '자치구', '구분', '도서관명', '어린이회원', '청소년회원', '성인회원', '주소', '설립기관', '연도'])
     for i in range(start, end + 1):
         url = f'https://www.libsta.go.kr/statistics/stat/getlibraryexcelstatinfo?lib_gubun=LIBTYPE000002&stat_gubun=MCST_STBL_0000003711%7CMCST_STBL_0000003739&start_year={i}&end_year={i}&local_code=11'
@@ -246,56 +231,10 @@ def library_rent():
     df[['어린이회원', '청소년회원', '성인회원']] = df[['어린이회원', '청소년회원', '성인회원']].applymap(lambda x: int(x))
     return df
 
-def gu_population():
-    '''
-    서울시 자치구별 인구 통계
-    '''
-    df = pd.read_excel("rawdata/gu_population.xls", header=0)
 
-    df = df.fillna(method='ffill')
-    df = df.loc[:, ['기간', '자치구', '인구']]
-
-    year_2017 = df['기간'] == '2017'
-    df_year_2017 = df[year_2017]
-    df_year_2017 = df_year_2017.drop(['기간'], axis=1)
-    df_year_2017.set_index('자치구', inplace=True)
-    # print(df_year_2017)
-
-    year_2018 = df['기간'] == '2018'
-    df_year_2018 = df[year_2018]
-    df_year_2018 = df_year_2018.drop(['기간'], axis=1)
-    df_year_2018.set_index('자치구', inplace=True)
-
-    year_2019 = df['기간'] == '2019'
-    df_year_2019 = df[year_2019]
-    df_year_2019 = df_year_2019.drop(['기간'], axis=1)
-    df_year_2019.set_index('자치구', inplace=True)
-
-    year_2020 = df['기간'] == '2020'
-    df_year_2020 = df[year_2020]
-    df_year_2020 = df_year_2020.drop(['기간'], axis=1)
-    df_year_2020.set_index('자치구', inplace=True)
-
-    year_2021 = df['기간'] == '2021'
-    df_year_2021 = df[year_2021]
-    df_year_2021 = df_year_2021.drop(['기간'], axis=1)
-    df_year_2021.set_index('자치구', inplace=True)
-
-    # df_year_2017에 열로 데이터를 붙인 후 열 이름 변경
-    df = pd.concat([df_year_2017, df_year_2018, df_year_2019, df_year_2020, df_year_2021], axis=1)
-    df.columns = ['2017', '2018', '2019', '2020', '2021']
-    df = df.drop(['합계'], axis=0)
-    df.reset_index(inplace=True)
-
-    df[['2017', '2018', '2019', '2020', '2021']] = df[['2017', '2018', '2019', '2020', '2021']].applymap(
-        lambda x: int(x))
-    return df
-
+# 서울시 자치구별 청소년-인구 통계
 def gu_youth_population():
-    '''
-    서울시 자치구별 청소년 통계
-    '''
-    df = pd.read_excel('rawdata/gu_youth_population.xlsx')
+    df = pd.read_excel('./raws/gu_youth_population.xlsx')
     df.drop(['9세-24세', '9세-24세.1', '학령인구', '학령인구.1'], axis=1, inplace=True)
     df.columns = ['연도', '자치구', '총인구', '청소년합계', '청소년구성비']
     df.drop(0, inplace=True)
@@ -304,11 +243,10 @@ def gu_youth_population():
     df[['총인구', '청소년합계', '청소년구성비']] = df[['총인구', '청소년합계', '청소년구성비']].applymap(lambda x: float(x))
     return df
 
+
+# 서울시 자치구별 소득 통계
 def gu_averageincome():
-    '''
-    서울시 자치구별 소득 통계
-    '''
-    ppl = pd.read_excel('rawdata/gu_income.xlsx', header=0)
+    ppl = pd.read_excel('./raws/gu_income.xlsx', header=0)
     ppl = ppl.fillna(method='ffill')
     for i in range(2017, 2021):
         for j in range(2, 8):
@@ -331,19 +269,18 @@ def gu_averageincome():
     df[['2017', '2018', '2019', '2020']] = df[['2017', '2018', '2019', '2020']].applymap(lambda x: int(x))
     return df
 
+
+# 서울시 자치구별 생활환경 만족도 통계
 def gu_satisfaction():
-    '''
-    서울시 자치구별 생활환경 만족도 통계
-    '''
-    sat2017 = pd.read_excel('rawdata/gu_satisfaction_2017.xls', header=0)
-    sat2018 = pd.read_excel('rawdata/gu_satisfaction_2018.xls', header=0)
-    sat2019 = pd.read_excel('rawdata/gu_satisfaction_2019.xls', header=0)
-    sat2020 = pd.read_excel('rawdata/gu_satisfaction_2020.xls', header=0)
+    sat2017 = pd.read_excel('./raws/gu_satisfaction_2017.xls', header=0)
+    sat2018 = pd.read_excel('./raws/gu_satisfaction_2018.xls', header=0)
+    sat2019 = pd.read_excel('./raws/gu_satisfaction_2019.xls', header=0)
+    sat2020 = pd.read_excel('./raws/gu_satisfaction_2020.xls', header=0)
 
     sat_list = [sat2017, sat2018, sat2019, sat2020]
     year_list = [2017, 2018, 2019, 2020]
 
-    # 필요없는 데이터 제거하고 데이터프레임 결합에 대비해 컬럼명 수정
+    # 필요없는 데이터 제거, 데이터프레임 결합을 위해 컬럼명 수정
     for i in range(4):
         sat_list[i].fillna(method='ffill')
         sat_list[i].drop(sat_list[i].index[0:35], inplace=True)
@@ -354,52 +291,10 @@ def gu_satisfaction():
     df.rename(columns={'분류': '자치구'}, inplace=True)
     return df
 
-def gu_household():
-    '''
-    서울시 자치구별 가구원수 통계
-    '''
-    df = pd.read_excel('rawdata/gu_household.xls', header=1)
-    df.drop(0, inplace=True)
-    df.rename(columns={'기간': '연도', '구분': '자치구'}, inplace=True)
-    df.sort_values(by='자치구', inplace=True)
-    df.reset_index(drop=True, inplace=True)
-    return df
 
-def gu_ages():
-    '''
-    서울시 연령대별 생활인구 통계
-    '''
-    gu_code = pd.read_csv('rawdata/gu_code.csv', encoding='cp949', skiprows=1)
-    gu_code.columns = ['자치구코드', '자치구명']
-    gu_code['자치구코드'] = gu_code['자치구코드'].apply(lambda x: str(x)[:5])
-    gu_code.sort_values(by='자치구코드', inplace=True)
-
-    gu_people = pd.read_csv('rawdata/gu_people.csv', encoding='cp949')
-    columns = gu_people.columns[1:]
-    gu_people.drop('여자70세이상생활인구수', inplace=True, axis=1)
-    gu_people.columns = columns
-    gu_people = gu_people[(gu_people.index == 20191231) & (gu_people['시간대구분'] == 23)]
-    gu_people.sort_values(by='자치구코드')
-    gu_people['자치구코드'] = gu_code['자치구명'].values
-    gu_people.drop('시간대구분', axis=1, inplace=True)
-    gu_people.rename(columns={'자치구코드': '자치구'}, inplace=True)
-    gu_people.sort_values(by='자치구', inplace=True)
-    gu_people.reset_index(inplace=True, drop=True)
-
-    df = gu_people[['자치구', '총생활인구수']]
-    # df['어린이'] = [gu_people.iloc[i, [2, 16]].sum() for i in range(len(gu_people))]
-    # df['10대'] = [gu_people.iloc[i, [3, 4, 17, 18]].sum() for i in range(len(gu_people))]
-    df['10이하'] = [gu_people.iloc[i, [2, 3, 4, 16, 17, 18]].sum() for i in range(len(gu_people))]
-    df['2030대'] = [gu_people.iloc[i, [5, 6, 7, 8, 19, 20, 21, 22]].sum() for i in range(len(gu_people))]
-    df['4050대'] = [gu_people.iloc[i, [9, 10, 11, 12, 23, 24, 25, 26]].sum() for i in range(len(gu_people))]
-    df['60이상'] = [gu_people.iloc[i, [13, 14, 15, 27, 28, 29]].sum() for i in range(len(gu_people))]
-    return df
-
+# 2017-2019년 자치구별 취약계층 지원 예산
 def gu_disadv_budget():
-    '''
-    자치구별 취약계층 지원 예산 (2017-2019)
-    '''
-    df = pd.read_excel('rawdata/gu_disadv_budget.xlsx', header=0)
+    df = pd.read_excel('./raws/gu_disadv_budget.xlsx', header=0)
     df.fillna(method='ffill')
     for i in [3, 4, 5, 7, 8, 9, 11, 12, 13]:
         df = df.drop([f'Unnamed: {i}'], axis=1)
@@ -414,11 +309,9 @@ def gu_disadv_budget():
     return df
 
 
+# 2019년 자치구별 취약계층 이용자수
 def gu_disadv_users():
-    '''
-    자치구별 취약계층 이용자수 (2019)
-    '''
-    df = pd.read_excel('rawdata/gu_disadv_users.xlsx', header=0)
+    df = pd.read_excel('./raws/gu_disadv_users.xlsx', header=0)
     df.fillna(method='ffill')
     df = df.drop([0, 1, 184], axis=0)
     df = df.drop(['도서관명', 2017, 'Unnamed: 3', 'Unnamed: 4', 2018, 'Unnamed: 6', 'Unnamed: 7'], axis=1)
@@ -433,8 +326,39 @@ def gu_disadv_users():
     df.reset_index(drop=False, inplace=True)
     return df
 
+
+# 서울시 연령대별 생활인구 통계
+def gu_ages():
+    gu_code = pd.read_csv('./raws/gu_code.csv', encoding='cp949', skiprows=1)
+    gu_code.columns = ['자치구코드', '자치구명']
+    gu_code['자치구코드'] = gu_code['자치구코드'].apply(lambda x: str(x)[:5])
+    gu_code.sort_values(by='자치구코드', inplace=True)
+
+    gu_people = pd.read_csv('./raws/gu_people.csv', encoding='cp949')
+    columns = gu_people.columns[1:]
+    gu_people.drop('여자70세이상생활인구수', inplace=True, axis=1)
+    gu_people.columns = columns
+    gu_people = gu_people[(gu_people.index == 20191231) & (gu_people['시간대구분'] == 23)]
+    gu_people.sort_values(by='자치구코드')
+    gu_people['자치구코드'] = gu_code['자치구명'].values
+    gu_people.drop('시간대구분', axis=1, inplace=True)
+    gu_people.rename(columns={'자치구코드': '자치구'}, inplace=True)
+    gu_people.sort_values(by='자치구', inplace=True)
+    gu_people.reset_index(inplace=True, drop=True)
+
+    df = gu_people[['자치구', '총생활인구수']].copy()
+    # df['어린이'] = [gu_people.iloc[i, [2, 16]].sum() for i in range(len(gu_people))]
+    # df['10대'] = [gu_people.iloc[i, [3, 4, 17, 18]].sum() for i in range(len(gu_people))]
+    df['10이하'] = [gu_people.iloc[i, [2, 3, 4, 16, 17, 18]].sum() for i in range(len(gu_people))]
+    df['2030대'] = [gu_people.iloc[i, [5, 6, 7, 8, 19, 20, 21, 22]].sum() for i in range(len(gu_people))]
+    df['4050대'] = [gu_people.iloc[i, [9, 10, 11, 12, 23, 24, 25, 26]].sum() for i in range(len(gu_people))]
+    df['60이상'] = [gu_people.iloc[i, [13, 14, 15, 27, 28, 29]].sum() for i in range(len(gu_people))]
+    return df
+
+
+# 학령인구 통계
 def gu_schoolage():
-    df = pd.read_excel("rawdata/gu_schoolage.xls")
+    df = pd.read_excel("./raws/gu_schoolage.xls")
     df = df[df['자치구'] != '합계'].reset_index(drop=True)
     df.rename(columns={'기간': '연도'}, inplace=True)
     return df

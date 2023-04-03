@@ -4,6 +4,7 @@ import pymysql
 from sqlalchemy import create_engine
 import pandas as pd
 
+
 def data_save(df, table_nm, index=False):
     user_nm = 'root'
     user_pw = '1234'
@@ -20,16 +21,17 @@ def data_save(df, table_nm, index=False):
     df = pd.read_sql_table(table_nm, con=conn)
     print(df)
 
+
 def data_load(table_nm):
     user_nm = 'root'
     user_pw = '1234'
     host_nm = 'localhost'
     host_address = '3306'
     db_nm = 'multi_pjt1'
-    # 데이터 베이스 연결
-    db_connection_path = f"mysql+mysqldb://{user_nm}:{user_pw}@{host_nm}:{host_address}/{db_nm}"
+    # 데이터베이스 연결
+    db_connection_path = f'mysql+mysqldb://{user_nm}:{user_pw}@{host_nm}:{host_address}/{db_nm}'
     db_connection = create_engine(db_connection_path, encoding='utf-8')
     conn = db_connection.connect()
-    # 데이터 가져오기
+    # 데이터 로딩
     df = pd.read_sql_table(table_nm, con=conn)
     return df
